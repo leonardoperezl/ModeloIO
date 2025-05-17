@@ -14,6 +14,7 @@ problema".
 "README.md" en el directorio raíz del proyecto, en la sección "Ejemplos de uso".
 """
 
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -124,7 +125,7 @@ class DataDataFrameDescriptor:
         
         # Error: `df` es ahora el valor corregido, pero no se asigna
         # correctamente al atributo de la instancia.
-        instance.__dict__[self.name] = value 
+        instance.__dict__[self.name] = df
 
 
 class ProblemData:
@@ -195,7 +196,10 @@ class ProblemData:
         return self.df
 
 
-def download_data(path: DataPath, output_format: str = "dataframe") -> pd.DataFrame | np.ndarray | list[list]:
+def download_data(
+    path: DataPath,
+    output_format: str = "dataframe"
+) -> tuple[pd.DataFrame | np.ndarray | list[list], float]:
     """
     Descarga los datos del archivo CSV y los carga en un DataFrame.
     
@@ -212,9 +216,12 @@ def download_data(path: DataPath, output_format: str = "dataframe") -> pd.DataFr
     
     Retorna
     -------
-    pd.DataFrame
-        El DataFrame con los datos del archivo CSV.
+    tuple[pd.DataFrame | np.ndarray | list[list], float]
+        - El DataFrame con los datos del archivo CSV.
+        - El tiempo total de ejecución en segundos.
     """
+    
+    start_time = time.time()
     
     data = ProblemData(path).normalize_data()
     
@@ -223,7 +230,10 @@ def download_data(path: DataPath, output_format: str = "dataframe") -> pd.DataFr
     elif output_format == "list":
         return data.values.tolist()
     
-    return data
+    end_time = time.time()
+    final_time = end_time - start_time
+    
+    return data, final_time
 
 
 if __name__ == "__main__":
